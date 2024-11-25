@@ -23,9 +23,8 @@ async function initializeDB() {
         await calculateTotalPages();
         loadPage(0);
         
-        // Initialize slider value and background with 50
+        // Initialize slider value and background
         const slider = document.getElementById('max-cost');
-        document.getElementById('cost-value').textContent = '50';
         const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
         slider.style.background = `linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) ${value}%, #ddd ${value}%, #ddd 100%)`;
         
@@ -61,7 +60,7 @@ async function populateStoreFilter() {
 }
 
 async function calculateTotalPages() {
-    const maxCost = parseFloat(document.getElementById('max-cost').value) || 100;
+    const maxCost = parseFloat(document.getElementById('max-cost').value);
     const selectedStore = document.getElementById('store-filter').value;
     
     let query = `
@@ -72,6 +71,11 @@ async function calculateTotalPages() {
     
     if (selectedStore) {
         query += ` AND recipe_store = '${selectedStore}'`;
+    }
+    
+    // If maxCost is 0, ensure no recipes are shown
+    if (maxCost === 0) {
+        query += ` AND 1=0`;
     }
     
     const results = db.exec(query);
@@ -135,7 +139,7 @@ async function loadPage(pageNumber) {
     document.getElementById('recipe-list').innerHTML = '<div class="loading">Loading recipes...</div>';
     
     try {
-        const maxCost = parseFloat(document.getElementById('max-cost').value) || 100;
+        const maxCost = parseFloat(document.getElementById('max-cost').value);
         const selectedStore = document.getElementById('store-filter').value;
         
         let query = `
@@ -143,7 +147,8 @@ async function loadPage(pageNumber) {
                 id,
                 recipe_title,
                 recipe_total_cost,
-                recipe_store
+                recipe_store,
+                recipe_serving_size
             FROM recipes
             WHERE recipe_total_cost <= ${maxCost}
         `;
@@ -152,8 +157,13 @@ async function loadPage(pageNumber) {
             query += ` AND recipe_store = '${selectedStore}'`;
         }
         
+        // If maxCost is 0, ensure no recipes are shown
+        if (maxCost === 0) {
+            query += ` AND 1=0`;
+        }
+        
         query += `
-            ORDER BY recipe_total_cost ASC
+            ORDER BY recipe_date ASC
             LIMIT ${RECIPES_PER_PAGE}
             OFFSET ${currentPage * RECIPES_PER_PAGE}
         `;
@@ -167,7 +177,8 @@ async function loadPage(pageNumber) {
                 id: row[0],
                 title: row[1],
                 totalCost: row[2],
-                store: row[3]
+                store: row[3],
+                servingSize: row[4]
             }));
             
             renderRecipes(recipes);
@@ -195,12 +206,40 @@ function renderRecipes(recipes) {
                 <h3>${recipe.title}</h3>
                 <p class="price">$${recipe.totalCost ? recipe.totalCost.toFixed(2) : '0.00'}</p>
                 <p class="store">${recipe.store || 'Unknown'}</p>
+                <p class="serving-size">Serves: ${recipe.servingSize || 'N/A'}</p>
+                <button class="view-ingredients">View Ingredients</button>
+                <div class="recipe-id">ID: ${recipe.id}</div>
             </div>
         `;
         
         recipeList.appendChild(recipeElement);
         loadRecipeImage(recipe.id, recipeElement);
     });
+
+    // Add event listeners for image click
+    const imageModal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    const closeModal = document.querySelector('.close');
+
+    // Ensure image modal is hidden initially
+    imageModal.style.display = 'none';
+
+    recipeList.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG') {
+            imageModal.style.display = 'flex'; // Show modal
+            modalImg.src = e.target.src; // Set image source
+        }
+    });
+
+    closeModal.onclick = function() {
+        imageModal.style.display = 'none'; // Hide modal
+    };
+
+    window.onclick = function(event) {
+        if (event.target === imageModal) {
+            imageModal.style.display = 'none'; // Hide modal if clicked outside
+        }
+    };
 }
 
 async function loadRecipeImage(recipeId, element) {
@@ -219,7 +258,8 @@ async function loadRecipeImage(recipeId, element) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
                 imgElement.alt = 'Recipe Image';
-                
+                imgElement.style.cursor = 'pointer'; // Indicate clickable
+
                 const noImageDiv = element.querySelector('.no-image');
                 if (noImageDiv) {
                     noImageDiv.replaceWith(imgElement);
@@ -259,4 +299,128 @@ document.addEventListener('click', function(e) {
 });
 
 // Initialize database when page loads
-document.addEventListener('DOMContentLoaded', initializeDB); 
+document.addEventListener('DOMContentLoaded', initializeDB);
+
+document.addEventListener('DOMContentLoaded', function() {
+    const imageModal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-image');
+    const closeModal = document.querySelector('.close');
+    const recipeList = document.getElementById('recipe-list');
+
+    const ingredientsModal = document.getElementById('ingredients-modal');
+    const closeIngredients = document.querySelector('.close-ingredients');
+
+    // Ensure both modals are hidden initially
+    imageModal.style.display = 'none';
+    ingredientsModal.style.display = 'none';
+
+    // Image modal logic
+    recipeList.addEventListener('click', function(e) {
+        if (e.target.tagName === 'IMG') {
+            imageModal.style.display = 'flex'; // Show image modal
+            modalImg.src = e.target.src; // Set image source
+        }
+    });
+
+    closeModal.onclick = function() {
+        imageModal.style.display = 'none'; // Hide image modal
+    };
+
+    window.onclick = function(event) {
+        if (event.target === imageModal) {
+            imageModal.style.display = 'none'; // Hide image modal if clicked outside
+        }
+    };
+
+    // Ingredients modal logic
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('view-ingredients')) {
+            const recipeId = e.target.closest('.recipe-item').querySelector('.recipe-id').textContent.split(': ')[1];
+            const ingredients = await fetchIngredients(recipeId);
+            showIngredientsModal(ingredients);
+        }
+    });
+
+    closeIngredients.onclick = function() {
+        ingredientsModal.style.display = 'none'; // Hide ingredients modal
+    };
+
+    window.onclick = function(event) {
+        if (event.target === ingredientsModal) {
+            ingredientsModal.style.display = 'none'; // Hide ingredients modal if clicked outside
+        }
+    };
+});
+
+async function fetchIngredients(recipeId) {
+    try {
+        const results = db.exec(`
+            SELECT recipe_ingredient, recipe_ingredient_amount, recipe_ingredient_cost
+            FROM recipe_ingredients
+            WHERE recipe_id = ${recipeId}
+        `);
+
+        if (results.length > 0 && results[0].values.length > 0) {
+            return results[0].values.map(row => ({
+                ingredient: row[0],
+                amount: row[1],
+                cost: row[2]
+            }));
+        }
+    } catch (error) {
+        console.error('Error fetching ingredients:', error);
+    }
+    return [];
+}
+
+function showIngredientsModal(ingredients) {
+    const modal = document.getElementById('ingredients-modal');
+    const modalContent = document.getElementById('ingredients-modal-content');
+    modalContent.innerHTML = ''; // Clear previous content
+
+    const title = document.createElement('h2');
+    title.textContent = 'Recipe Ingredients';
+    modalContent.appendChild(title);
+
+    if (ingredients.length > 0) {
+        const table = document.createElement('table');
+        table.className = 'ingredients-table';
+        
+        // Add table header
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Amount</th>
+                    <th>Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${ingredients.map(ing => `
+                    <tr>
+                        <td>${ing.ingredient}</td>
+                        <td>${ing.amount}</td>
+                        <td>$${ing.cost.toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
+        
+        modalContent.appendChild(table);
+
+        // Add total cost
+        const total = ingredients.reduce((sum, ing) => sum + ing.cost, 0);
+        const totalElement = document.createElement('div');
+        totalElement.className = 'ingredients-total';
+        totalElement.textContent = `Total Cost: $${total.toFixed(2)}`;
+        modalContent.appendChild(totalElement);
+    } else {
+        modalContent.innerHTML += `
+            <p style="text-align: center; color: var(--text-color);">
+                No ingredients found for this recipe.
+            </p>
+        `;
+    }
+
+    modal.style.display = 'flex';
+} 

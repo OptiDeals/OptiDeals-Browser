@@ -6,33 +6,28 @@
     <title>Recipe Browser Store</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Recipe Browser Store</h1>
-    </header>
-    
-    <section class="filters">
-        <div class="filter-options">
-            <div class="cost-filter">
-                <label for="max-cost">Maximum Cost: $<span id="cost-value">100</span></label>
-                <input type="range" 
-                       id="max-cost" 
-                       name="max-cost" 
-                       min="0" 
-                       max="100" 
-                       value="50" 
-                       step="1">
-            </div>
-            
+    <div class="header-container">
+        <section class="filters">
             <div class="store-filter">
                 <label for="store-filter">Store:</label>
                 <select id="store-filter">
                     <option value="">All Stores</option>
                 </select>
             </div>
-        </div>
-    </section>
+            <div class="cost-filter">
+                <label for="max-cost">Max Cost:</label>
+                <input type="range" id="max-cost" min="0" max="100" value="50">
+                <span id="cost-value">50</span>
+            </div>
+        </section>
+        <header>
+        </header>
+    </div>
     
     <section id="recipe-list" class="recipe-list">
         <div class="loading">Loading recipes...</div>
@@ -44,10 +39,20 @@
         <button id="next-page">Next</button>
     </div>
     
-    <footer>
-        <p>&copy; 2024 Recipe Browser Store</p>
-    </footer>
-    
+    <!-- Modal for image zoom -->
+    <div id="image-modal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modal-image">
+    </div>
+
+    <!-- Ingredients Modal -->
+    <div id="ingredients-modal" class="modal">
+        <span class="close close-ingredients">&times;</span>
+        <div id="ingredients-modal-content" class="modal-content">
+            <!-- Ingredients will be dynamically inserted here -->
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html> 
