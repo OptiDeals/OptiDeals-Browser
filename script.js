@@ -23,8 +23,9 @@ async function initializeDB() {
         await calculateTotalPages();
         loadPage(0);
         
-        // Initialize slider value and background
+        // Initialize slider value and background with 50
         const slider = document.getElementById('max-cost');
+        document.getElementById('cost-value').textContent = '50';
         const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
         slider.style.background = `linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) ${value}%, #ddd ${value}%, #ddd 100%)`;
         
