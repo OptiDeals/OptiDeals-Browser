@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Browser Store</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Recipe Browser Store</h1>
+    </header>
+    
+    <section class="filters">
+        <div class="filter-options">
+            <div class="cost-filter">
+                <label for="max-cost">Maximum Cost: $<span id="cost-value">100</span></label>
+                <input type="range" 
+                       id="max-cost" 
+                       name="max-cost" 
+                       min="0" 
+                       max="100" 
+                       value="100" 
+                       step="1">
+            </div>
+            
+            <div class="store-filter">
+                <label for="store-filter">Store:</label>
+                <select id="store-filter">
+                    <option value="">All Stores</option>
+                </select>
+            </div>
+        </div>
+    </section>
+    
+    <section id="recipe-list" class="recipe-list">
+        <div class="loading">Loading recipes...</div>
+    </section>
+    
+    <div id="pagination-controls" class="pagination-controls">
+        <button id="prev-page" disabled>Previous</button>
+        <span>Page 1 of 1</span>
+        <button id="next-page">Next</button>
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 Recipe Browser Store</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html> 

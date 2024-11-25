@@ -1,0 +1,241 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #ecf0f1;
+    --accent-color: #3498db;
+    --text-color: #333;
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.filters {
+    background-color: var(--secondary-color);
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cost-filter, .store-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cost-filter label, .store-filter label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(to right, var(--accent-color) 0%, var(--accent-color) 50%, #ddd 50%, #ddd 100%);
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+select {
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+}
+
+select:focus {
+    border-color: var(--accent-color);
+}
+
+.recipe-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding: 1rem;
+    margin-bottom: 4rem;
+}
+
+.recipe-item {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease;
+}
+
+.recipe-item:hover {
+    transform: translateY(-5px);
+}
+
+.recipe-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.recipe-item .no-image {
+    width: 100%;
+    height: 200px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.recipe-item .content {
+    padding: 1rem;
+}
+
+.recipe-item h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.recipe-item p {
+    margin: 0.3rem 0;
+    color: #666;
+}
+
+.recipe-item .price {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.loading, .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.sentinel {
+    grid-column: 1 / -1;
+    height: 20px;
+}
+
+footer {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsiveness */
+@media (min-width: 768px) {
+    .filter-options {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cost-filter, .store-filter {
+        width: 300px;
+    }
+}
+
+@media (max-width: 767px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .filters {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+
+    .recipe-list {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .recipe-item {
+        margin: 0 0.5rem;
+    }
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+}
+
+.pagination-controls button,
+.pagination-controls .page-number {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.pagination-controls .page-number {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--accent-color);
+}
+
+.pagination-controls .page-number.active {
+    background-color: var(--accent-color);
+    color: white;
+} 
